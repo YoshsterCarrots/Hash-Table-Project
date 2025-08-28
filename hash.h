@@ -178,3 +178,59 @@ class DoubleHash : public Hash<T, SIZE> {
             }
         }
 };
+
+template <class T, size_t SIZE>
+class QuadraticProbingHash : public Hash<T,SIZE> {
+    enum class STATUS : char {OPEN, FILLED, DELETED};
+    vector<T> data;
+    vector<STATUS> status;
+    public:
+    QuadraticProbingHash(){
+        data.resize(SIZE);
+        status.resize(SIZE,STATUS::OPEN);
+    }
+    void insert(T new_data) override{
+        size_t address = hash<T>{}(new_data) % SIZE;
+        int i = 1;
+        while (status.at(address) == STATUS::FILLED){
+            address = (address + i*i) % SIZE;
+            i++;
+            if(i > SIZE) return;
+        }
+        data.at(address) = new_data;
+        status.at(address) = STATUS::FILLED;
+    }
+    void remove(T old_data) override{
+        size_t address = hash<T>{}(old_data) % SIZE;
+        int i = 1;
+        while(status.at(address) != STATUS::OPEN){
+            if(status.at(address) == STATUS::FILLED && data.at(address) == old_data){
+                status.at(address) = STATUS::DELETED;
+                return;
+            }
+            address = (address + i*i) % SIZE;
+            i++;
+            if(i > SIZE) return;
+        }
+    }
+    bool search(T old_data) const override{
+        size_t address = hash<T>{}(old_data) % SIZE;
+        int i = 1;
+        while (status.at(address) != STATUS::OPEN){
+            if (status.at(address) == STATUS::FILLED && data.at(address) == old_data){
+                return true;
+            }
+            address = (address + i*i) % SIZE;
+            i++;
+            if(i > SIZE) return false;
+        }
+        return false;
+    }
+    void change(T old_data, T new_data) override{
+        if(search(old_data)){
+            remove(old_data);
+            insert(new_data);
+        }
+    }
+};
+
