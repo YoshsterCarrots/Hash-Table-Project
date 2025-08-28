@@ -193,7 +193,7 @@ class QuadraticProbingHash : public Hash<T,SIZE> {
         status.resize(SIZE,STATUS::OPEN);
     }
     void insert(T new_data) override{
-        size_t address = hash<T>{}(new_data) % SIZE;
+        size_t address = std::hash<T>{}(new_data) % SIZE;
         int i = 1;
         while (status.at(address) == STATUS::FILLED){
             address = (address + i*i) % SIZE;
@@ -204,7 +204,7 @@ class QuadraticProbingHash : public Hash<T,SIZE> {
         status.at(address) = STATUS::FILLED;
     }
     void remove(T old_data) override{
-        size_t address = hash<T>{}(old_data) % SIZE;
+        size_t address = std::hash<T>{}(old_data) % SIZE;
         int i = 1;
         while(status.at(address) != STATUS::OPEN){
             if(status.at(address) == STATUS::FILLED && data.at(address) == old_data){
@@ -217,7 +217,7 @@ class QuadraticProbingHash : public Hash<T,SIZE> {
         }
     }
     bool search(T old_data) const override{
-        size_t address = hash<T>{}(old_data) % SIZE;
+        size_t address = std::hash<T>{}(old_data) % SIZE;
         int i = 1;
         while (status.at(address) != STATUS::OPEN){
             if (status.at(address) == STATUS::FILLED && data.at(address) == old_data){
