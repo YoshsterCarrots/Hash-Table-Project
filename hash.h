@@ -111,8 +111,9 @@ class DoubleHash : public Hash<T, SIZE> {
             }
         }
 
-        void insert(T new_data) override { //Override means it is overriding a virtual function
+     void insert(T new_data) override { //Override means it is overriding a virtual function
             int currIndex = new_data % SIZE;
+            int step = (new_data % R) + 1;
             for (int i = 0; i < SIZE; i++) {
                 if (status.at(currIndex) == STATUS::OPEN) {
                     data.at(currIndex) = new_data;
@@ -123,7 +124,7 @@ class DoubleHash : public Hash<T, SIZE> {
                     data.at(currIndex) = new_data;
                     status.at(currIndex) = STATUS::FILLED;
                     for (int i = 0; i < SIZE - 1; i++) {
-                        currIndex = (currIndex + data.at(currIndex) % R + 1) % SIZE;
+                        currIndex = (currIndex + step) % SIZE;
                         if (status.at(currIndex) == STATUS::OPEN) {
                             return;
                         }
@@ -138,13 +139,14 @@ class DoubleHash : public Hash<T, SIZE> {
                     return;
                 }
                 else {
-                    currIndex = (currIndex + data.at(currIndex) % R + 1) % SIZE;
+                    currIndex = (currIndex + step) % SIZE;
                 }
             }
         }
 
         void remove(T old_data) override {
             int currIndex = old_data % SIZE;
+            int step = (old_data % R) + 1;
             for (int i = 0; i < SIZE; i++) {
                 if (status.at(currIndex) == STATUS::OPEN) {
                     return;
@@ -153,12 +155,13 @@ class DoubleHash : public Hash<T, SIZE> {
                     status.at(currIndex) = STATUS::DELETED;
                     return;
                 }
-                currIndex = (currIndex + data.at(currIndex) % R + 1) % SIZE;
+                currIndex = (currIndex + step) % SIZE;
             }
         }
 
         bool search(T test_data) const override {
             int currIndex = test_data % SIZE;
+            int step = (test_data % R) + 1;
             for (int i = 0; i < SIZE; i++) {
                 if (status.at(currIndex) == STATUS::OPEN) {
                     return false;
@@ -166,7 +169,7 @@ class DoubleHash : public Hash<T, SIZE> {
                 if (status.at(currIndex) == STATUS::FILLED && data.at(currIndex) == test_data) {
                     return true;
                 }
-                currIndex = (currIndex + data.at(currIndex) % R + 1) % SIZE;
+                currIndex = (currIndex + step) % SIZE;
             }
             return false;
         }
