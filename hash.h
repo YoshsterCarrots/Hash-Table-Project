@@ -182,8 +182,8 @@ class DoubleHash : public Hash<T, SIZE> {
 template <class T, size_t SIZE>
 class QuadraticProbingHash : public Hash<T,SIZE> {
     enum class STATUS : char {OPEN, FILLED, DELETED};
-    vector<T> data;
-    vector<STATUS> status;
+    std::vector<T> data;
+    std::vector<STATUS> status;
     public:
     QuadraticProbingHash(){
         data.resize(SIZE);
