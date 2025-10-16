@@ -16,7 +16,7 @@ ColorGrid *getImage(int *elev_data, int width, int height, int maxVal) {
             continue;
         }
 
-        if(maxVal == 0) maxVal = 1;
+        //if(maxVal == 0) maxVal = 1;//ignore
         float scale = pixel_val/maxVal;
         //within 0-0.24 blue
         if(scale < 0.25){
@@ -92,7 +92,7 @@ ColorGrid *getImage(int *elev_data, int width, int height, int maxVal) {
             continue;
         }
 
-        if(maxVal == 0) maxVal = 1;
+        //if(maxVal == 0) maxVal = 1;//ignore
         float scale = pixel_val/maxVal;
         //within 0-0.24 blue
         if(scale < 0.25){
