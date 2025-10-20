@@ -17,7 +17,7 @@ using namespace bridges;
 // detailed description
 
 // function prototypes
-ColorGrid *getImage (int *img_arr, int imgWidth, int imgHeight, int maxVal);
+ColorGrid *getImage (int *img_arr, int imgWidth, int imgHeight, int maxVal, const string &filename);
 int *readData (int *imgWidth, int *imgHeight, int *maxVal, string file_name);
 void findPath(int *img_arr, int imgWidth, int imgHeight, int startRow, int maxVal);
 
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
 
     // get the path written into a color grid for visualization
     //YOU: Change the path color to red DONE
-    ColorGrid *cg = getImage(elev_data, width, height, maxVal);
+    ColorGrid *cg = getImage(elev_data, width, height, maxVal, filename);
 
     // visualize
     bridges.setDataStructure(cg);
@@ -160,25 +160,57 @@ int *readData(int *width, int *height, int *maxVal, string file_name) {
 
 // takes in the processed elevation data and returns a color grid for
 // visualization using BRIDGES
-ColorGrid *getImage(int *elev_data, int width, int height, int maxVal) {
+ColorGrid *getImage(int *elev_data, int width, int height, int maxVal, const string &filename)) {
     // create color grid
     ColorGrid *cg = new ColorGrid(height, width);
 
-    float pixel_val;
-    int n = 0, gray;
+    float pixel_val, maxBlue = 0.25, maxGreen = 0.5, maxYellow = 0.75;
+    int n = 0, gray, blue, green, LYellow;
+
+    if(filename == "./san_joaquin.dat" || filename == "./korea.dat") maxBlue = 0.00009;
 
     // load the elevation data
     for (int j = 0; j < height; j++)
     for (int k = 0; k < width; k++) {
         pixel_val = (float) elev_data[n++];
         if (pixel_val == INT_MIN) {
-            // this is the path drawn in purple across the image
-            cg->set(j, k, Color(255, 0, 0));
+            // this is the path drawn in purple(255, 0, 255) across the image Red(255, 8, 0)
+            cg->set(j, k, Color(255, 8, 0));
+            continue;
         }
+        if (pixel_val < 0) {
+            pixel_val = 0.0;
+        }
+        float scale = pixel_val/maxVal;
+        if(scale < 0) scale = 0.0;
+        if(scale > 1) scale = 1.0;
+        //within 0-0.24 blue
+        if(scale < maxBlue){
+            blue = 128 + (int) (scale/maxBlue * 127);
+            cg->set(j, k, Color(0, 0, blue));
+        }
+        //0.25-0.5 green
+        else if(scale < maxGreen){
+            green =10 + (int) ((scale - maxBlue)/(maxGreen - maxBlue) * 100);
+            int finalGreen = green -30;
+            if (finalGreen < 0) finalGreen = 0;
+            if (finalGreen > 255) finalGreen = 255;
+            cg->set(j, k, Color(finalGreen, green, 25));
+        }
+        //0.50-0.75 light yellow
+        else if(scale < maxYellow){
+            LYellow = (int) ((scale - maxGreen)/(maxYellow - maxGreen) * 255);
+            int BYellow = LYellow;
+            if(BYellow < 0) BYellow = 0;
+            if(BYellow < 50) BYellow = BYellow+60;
+            if(BYellow < 90) BYellow = BYellow+30;
+            if(BYellow < 255 && BYellow > 190) BYellow = BYellow-25;
+            if(BYellow > 255) BYellow = 255;
+            cg->set(j, k, Color(BYellow,BYellow, 13));//other like
+        }
+        //0.75-1 white
+
         else {
-            if (pixel_val < 0) {
-                pixel_val = 0;
-            }
             // scale value to be within 0-255, for r,g,b range
             gray = (int) (pixel_val*255./maxVal);
             cg->set(j, k, Color(gray, gray, gray));
